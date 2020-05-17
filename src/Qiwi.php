@@ -39,27 +39,44 @@ class Qiwi
         return json_decode($result, 1);
     }
 
-    public function getAccount(Array $params = []) 
+    public function getAccount(Array $params=[]) 
     {
         return $this->sendRequest('person-profile/v1/profile/current', $params);
     }
-    public function getPaymentsHistory(Array $params = []) {
+
+
+    public function getPaymentsHistory(Array $params = []) 
+    {
         return $this->sendRequest('payment-history/v2/persons/' . $this->_phone . '/payments', $params);
     }
-    public function getPaymentsStats(Array $params = []) {
+
+
+    public function getPaymentsStats(Array $params = []) 
+    {
         return $this->sendRequest('payment-history/v2/persons/' . $this->_phone . '/payments/total', $params);
     }
-    public function getTxn($txnId, Array $params = []) {
+
+
+    public function getTxn($txnId, Array $params = []) 
+    {
         return $this->sendRequest('payment-history/v2/transactions/' . $txnId .'/', $params);
     }
-    public function getCheck($txnId, Array $params = []) {
-	return $this->sendRequest('payment-history/v1/transactions/' . $txnId .'/cheque/file', $params);
+
+
+    public function getCheck($txnId, Array $params =[]) 
+    {
+	   return $this->sendRequest('payment-history/v1/transactions/' . $txnId .'/cheque/file', $params);
     } 
+
+
     public function getBalance() 
     {
         return $this->sendRequest('funding-sources/v2/persons/' . $this->_phone . '/accounts');
     }
-    public function getTax($providerId) {
+
+
+    public function getTax($providerId) 
+    {
         return $this->sendRequest('sinap/providers/'. $providerId .'/form');
     } 
 
@@ -94,11 +111,32 @@ class Qiwi
     }
 
 
-    public function sendMoneyToProvider($providerId, Array $params = []) {
+    public function sendMoneyToProvider($providerId, Array $params=[]) 
+    {
         return $this->sendRequest('sinap/api/v2/terms/'. $providerId .'/payments', $params, 1);
     }
-    public function sendMoneyToOther(Array $params = []) {
+
+
+    public function sendMoneyToOther(Array $params=[]) 
+    {
         return $this->sendRequest('sinap/api/v2/terms/1717/payments', $params, 1);
+    }
+
+    public function checkValidAccount($testRecipient, $testSum=1)
+    {
+        $response = $this->sendMoneyToQiwi($testRecipient, $testSum);
+        
+        if ("QWPRC-1021" == $response["code"]) // Ограничение на исходящие платежи
+        {
+            $response = false;
+        }
+        else
+        {
+            $response = true;
+        }
+    
+        
+        return  $response;
     }
 }
 ?>

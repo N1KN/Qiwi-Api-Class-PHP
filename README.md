@@ -68,6 +68,11 @@ getTax($providerId) | Комиссионные тарифы
 sendMoneyToQiwi(int $recipient, float $sum, string $comment, int $currency) | Перевод на QIWI Кошелек
 sendMoneyToProvider($providerId, Array $params) | Оплата услуг по ID получателя
 sendMoneyToOther(Array $params) | Платеж по свободным реквизитам
+checkValidAccount() | Возращает true, если нет лимита на исходящие платежи
 
+
+# To do
+- [x] Добавить функцию для проверки, есть ли лимит на платежи
+- [ ] Добавить исключение
 
 
