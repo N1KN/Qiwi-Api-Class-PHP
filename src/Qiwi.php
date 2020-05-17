@@ -1,21 +1,30 @@
 <?php
-class Qiwi {
+
+class Qiwi 
+{
     private $_phone;
     private $_token;
     private $_url;
  
-    function __construct($phone, $token) {
-        $this->_phone = $phone;
+    function __construct($phone, $token) 
+    {
+        $this->_phone = (string)$phone;
         $this->_token = $token;
         $this->_url   = 'https://edge.qiwi.com/';
     }
-    private function sendRequest($method, array $content = [], $post = false) {
+
+    private function sendRequest($method, array $content=[], $post=false) 
+    {
         $ch = curl_init();
-        if ($post) {
+        if (true == $post) 
+        {
             curl_setopt($ch, CURLOPT_URL, $this->_url . $method);
             curl_setopt($ch, CURLOPT_POST, 1);
             curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($content));
-        } else {
+        } 
+
+        else 
+        {
             curl_setopt($ch, CURLOPT_URL, $this->_url . $method . '/?' . http_build_query($content));
         }
         curl_setopt($ch, CURLOPT_HTTPHEADER, [
@@ -29,7 +38,9 @@ class Qiwi {
         curl_close($ch);
         return json_decode($result, 1);
     }
-    public function getAccount(Array $params = []) {
+
+    public function getAccount(Array $params = []) 
+    {
         return $this->sendRequest('person-profile/v1/profile/current', $params);
     }
     public function getPaymentsHistory(Array $params = []) {
@@ -44,15 +55,45 @@ class Qiwi {
     public function getCheck($txnId, Array $params = []) {
 	return $this->sendRequest('payment-history/v1/transactions/' . $txnId .'/cheque/file', $params);
     } 
-    public function getBalance() {
+    public function getBalance() 
+    {
         return $this->sendRequest('funding-sources/v2/persons/' . $this->_phone . '/accounts');
     }
     public function getTax($providerId) {
         return $this->sendRequest('sinap/providers/'. $providerId .'/form');
     } 
-    public function sendMoneyToQiwi(Array $params = []) {
-        return $this->sendRequest('sinap/api/v2/terms/99/payments', $params, 1);
+
+
+    public function sendMoneyToQiwi($recipient, $sum, $comment=null, $currency=643)
+    {
+        $path = 'sinap/api/v2/terms/99/payments';
+
+        if (null == $comment)
+        {
+            $comment = '';
+        }
+
+
+        $params = [
+            'id' => sprintf('%s', time() + 10 * 5),
+            'sum' => [
+                'amount'   => $sum,
+                'currency' => (string)$currency
+            ], 
+            'paymentMethod' => [
+                'type' => 'Account',
+                'accountId' => '643'
+            ],
+            'comment' => $comment,
+            'fields' => [
+                'account' => (string)$recipient
+            ]
+        ];
+
+        return $this->sendRequest($path, $params, 1);
     }
+
+
     public function sendMoneyToProvider($providerId, Array $params = []) {
         return $this->sendRequest('sinap/api/v2/terms/'. $providerId .'/payments', $params, 1);
     }
