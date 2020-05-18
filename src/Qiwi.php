@@ -122,6 +122,11 @@ class Qiwi
         return $this->sendRequest('sinap/api/v2/terms/1717/payments', $params, 1);
     }
 
+
+
+
+
+
     public function checkValidAccount($testRecipient, $testSum=1)
     {
         $response = $this->sendMoneyToQiwi($testRecipient, $testSum);
@@ -137,6 +142,63 @@ class Qiwi
     
         
         return  $response;
+    }
+
+
+    public function searchRefill($comment, $sum=0)
+    {
+        $history = $this->getPaymentsHistory()['data'];
+        $response = null;
+
+        foreach ($history as $key => $transaction) 
+        {
+            $transaction_comment = $transaction['comment'];
+            $transaction_sum = (float)$transaction['total']['amount'];
+
+            
+            if ($comment == $transaction['comment'] and  $sum <= $transaction_sum)
+            {
+                $response = $transaction;
+            }
+            
+        }
+
+        return $response;
+    }
+
+    public function genPaymentLink($number=null, $sum=null, $comment=null)
+    {
+        $form = 99;
+
+        $a = 'https://qiwi.com/payment/form/'.$form.'?extra%5B%27account%27%5D=';
+        $b = $number.'&amountInteger='.$sum.'&amountFraction=0';
+        $c = '&extra%5B%27comment%27%5D='.$comment.'&currency=643';
+        $a = $a.$b.$c;
+
+
+        if (null !== $number)
+        {
+            $a .= '&blocked[0]=account';
+        }
+        if (null !== $sum)
+        {
+            $a .= '&blocked[1]=sum';
+        }
+        if (null !== $comment)
+        {
+            $a .= '&blocked[2]=comment';
+        }
+
+        return $a;
+    }
+
+
+    public function genComment($lengt=10)
+    {
+        $comment = md5(uniqid(rand(),true));
+        $comment = substr($comment, 0, $lengt);
+
+        return $comment;
     }
 }
 ?>
