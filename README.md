@@ -4,7 +4,7 @@
 
 API клиент для работы с API личного кабинета Qiwi - [Документация Qiwi](https://developer.qiwi.com/qiwiwallet/qiwicom_ru.html)<br><br>
 <b>Версия Qiwi API:</b> Версия 1.4 от 15.05.2018<br>
-<b>История измений библиотеки:</b> [history.md](HISTORY.MD)
+<b>История измений библиотеки:</b> [history.md](HISTORY.md)
 
 
 # Установка
