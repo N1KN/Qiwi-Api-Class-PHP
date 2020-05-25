@@ -1,5 +1,7 @@
 <?php
 
+require_once(__DIR__."/Errors.php");
+
 class Qiwi 
 {
     private $_phone;
@@ -13,7 +15,7 @@ class Qiwi
         $this->_url   = 'https://edge.qiwi.com/';
     }
 
-    private function sendRequest($method, array $content=[], $post=false) 
+    private function sendRequest($method, array $content=[], $post=false, $warnings=True) 
     {
         $ch = curl_init();
         if (true == $post) 
@@ -35,7 +37,31 @@ class Qiwi
         ]); 
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
         $result = curl_exec($ch);
+        $http_code = curl_getinfo($ch, CURLINFO_HTTP_CODE); 
         curl_close($ch);
+
+
+        if (True == $warnings)
+        {
+            if (400 == $http_code)
+            {
+                throw new ArgumentError($result);
+                
+            }
+            elseif (401 == $http_code)
+            {
+                throw new InvalidToken('Invalid token!');
+            }
+            elseif (403 == $http_code)
+            {
+                throw new NotHaveEnoughPermissions($result);
+            }
+            elseif (404 == $http_code)
+            {
+                throw new NoTransaction($result);
+            }
+        }
+
         return json_decode($result, 1);
     }
 
