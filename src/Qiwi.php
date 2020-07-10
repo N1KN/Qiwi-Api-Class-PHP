@@ -8,11 +8,13 @@ class Qiwi
     private $_token;
     private $_url;
  
-    function __construct($phone, $token) 
+    function __construct($token) 
     {
-        $this->_phone = (string)$phone;
         $this->_token = $token;
         $this->_url   = 'https://edge.qiwi.com/';
+	    
+	$accInfo = $this->getAccount(['authInfoEnabled' => 'false', 'userInfoEnabled' => 'false', 'contractInfoEnabled' => true]);
+	$this->_phone = $accInfo['contractInfo']['contractId'];
     }
 
     private function sendRequest($method, array $content=[], $post=false, $warnings=True) 
